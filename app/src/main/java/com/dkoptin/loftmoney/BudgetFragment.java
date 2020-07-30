@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.dkoptin.loftmoney.cells.money.MoneyAdapter;
 import com.dkoptin.loftmoney.cells.money.MoneyCellModel;
-import com.dkoptin.loftmoney.db.Prefs;
+import com.dkoptin.loftmoney.db.JavaPrefs;
 import com.dkoptin.loftmoney.util.RequestCode;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -28,7 +28,7 @@ public class BudgetFragment extends Fragment {
     MoneyAdapter moneyAdapter;
     private String name;
     private String price;
-    private Prefs prefs;
+    private JavaPrefs javaPrefs;
 
     public static BudgetFragment newInstance(BudgetFragmentTags tag) {
         BudgetFragment myFragment = new BudgetFragment();
@@ -49,26 +49,26 @@ public class BudgetFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        prefs = new Prefs(requireContext());
+        javaPrefs = new JavaPrefs(requireContext());
         recyclerView = view.findViewById(R.id.costsRecyclerView);
         moneyAdapter = new MoneyAdapter();
         moneyAdapter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (((BudgetFragmentTags) getArguments().getSerializable("someTag")) == BudgetFragmentTags.EXPENSES) {
+                if (getArguments().getSerializable("someTag") == BudgetFragmentTags.EXPENSES) {
                     int itemPosition = recyclerView.getChildLayoutPosition(view);
                     MoneyCellModel item = moneyAdapter.getData().get(itemPosition);
-                    prefs.removeExpenses(item.getName());
+                    javaPrefs.removeExpenses(item.getName());
                 } else {
                     int itemPosition = recyclerView.getChildLayoutPosition(view);
                     MoneyCellModel item = moneyAdapter.getData().get(itemPosition);
-                    prefs.removeInCome(item.getName());
+                    javaPrefs.removeInCome(item.getName());
                 }
 
-                if (((BudgetFragmentTags) getArguments().getSerializable("someTag")) == BudgetFragmentTags.EXPENSES) {
-                    moneyAdapter.setData(prefs.getExpensesList());
+                if (getArguments().getSerializable("someTag") == BudgetFragmentTags.EXPENSES) {
+                    moneyAdapter.setData(javaPrefs.getExpensesList());
                 } else {
-                    moneyAdapter.setData(prefs.getInComeList());
+                    moneyAdapter.setData(javaPrefs.getInComeList());
                 }
             }
         });
@@ -76,10 +76,10 @@ public class BudgetFragment extends Fragment {
         recyclerView.setAdapter(moneyAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
 
-        if (((BudgetFragmentTags) getArguments().getSerializable("someTag")) == BudgetFragmentTags.EXPENSES) {
-            moneyAdapter.setData(prefs.getExpensesList());
+        if (getArguments().getSerializable("someTag") == BudgetFragmentTags.EXPENSES) {
+            moneyAdapter.setData(javaPrefs.getExpensesList());
         } else {
-            moneyAdapter.setData(prefs.getInComeList());
+            moneyAdapter.setData(javaPrefs.getInComeList());
         }
 
         FloatingActionButton addCellExpenses = view.findViewById(R.id.addCellExpeneses);
@@ -98,7 +98,7 @@ public class BudgetFragment extends Fragment {
     private List<MoneyCellModel> generateExpenses() {
         List<MoneyCellModel> moneyCellModels = new ArrayList<>();
         MoneyCellModel local = new MoneyCellModel(name, (price + " ₽"), R.color.expenseColor);
-        prefs.addExpenses(local);
+        javaPrefs.addExpenses(local);
         moneyCellModels.add(local);
         return moneyCellModels;
     }
@@ -106,7 +106,7 @@ public class BudgetFragment extends Fragment {
     private List<MoneyCellModel> generateIncome() {
         List<MoneyCellModel> moneyCellModels = new ArrayList<>();
         MoneyCellModel local = new MoneyCellModel(name, (price + " ₽"), R.color.colorTemp);
-        prefs.addInCome(local);
+        javaPrefs.addInCome(local);
         moneyCellModels.add(local);
         return moneyCellModels;
     }
